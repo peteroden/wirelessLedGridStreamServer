@@ -14,10 +14,11 @@ var wss = new WebSocketServer({ server: server });
 wss.on('connection', function connection(ws) {
  
   ws.on('message', function incoming(message) {
+    ws.send('message received');
     console.log('received: %s', message);
   });
  
-  ws.send('something');
+  ws.send('connected');
 });
 
 server.listen(port);
