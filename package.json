@@ -1,0 +1,21 @@
+{
+  "name": "wirelessledgridstreamserver",
+  "version": "1.0.0",
+  "description": "node.js app that uses web sockets to stream video to ESP8266 module driving a matrix of smart LEDs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peteroden/wirelessLedGridStreamServer.git"
+  },
+  "author": "Pete Roden",
+  "bugs": {
+    "url": "https://github.com/peteroden/wirelessLedGridStreamServer/issues"
+  },
+  "homepage": "https://github.com/peteroden/wirelessLedGridStreamServer#readme",
+  "dependencies": {
+    "ws": "*"
+  }
+}
