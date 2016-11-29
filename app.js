@@ -12,9 +12,9 @@ var WebSocketServer = require('ws').Server
 var wss = new WebSocketServer({ server: server });
 
 wss.on('connection', function connection(ws) {
- 
+    ws.send("ws connected: "+ws);
   ws.on('message', function incoming(message) {
-    ws.send('message received');
+    ws.send("ws message: "+ws);
     console.log('received: %s', message);
   });
  
