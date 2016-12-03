@@ -16,6 +16,7 @@
   },
   "homepage": "https://github.com/peteroden/wirelessLedGridStreamServer#readme",
   "dependencies": {
-    "ws": "*"
+    "ws": "*",
+    "utf-8-validate": "*"
   }
 }
