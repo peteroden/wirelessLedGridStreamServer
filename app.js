@@ -8,7 +8,7 @@ const server = http.createServer((req, res) => {
 });
 
 var devices = {};
-var testframe = new Uint8Array( [0,0,0,0,0,0,0,0,
+var testframe = new Uint8Array( [255,0,0,0,0,0,0,0,
                                  0,0,0,0,0,0,0,0,
                                  0,0,0,0,0,0,0,0,
                                  0,0,0,0,0,0,0,0,
@@ -31,7 +31,7 @@ var testframe = new Uint8Array( [0,0,0,0,0,0,0,0,
                                  0,0,0,0,0,0,0,0,
                                  0,0,0,0,0,0,0,0,
                                  0,0,0,0,0,0,0,0,
-                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,255
                                  ]);
 var WebSocketServer = require('ws').Server
 var wss = new WebSocketServer({ server: server });
@@ -86,10 +86,10 @@ var timer = setInterval(function() {
   for (var deviceid in devices) {
     var device = devices[deviceid]
     if(device.framebuffer.length>0) {
-      device.ws.send(device.framebuffer[0]);
+      device.ws.send(device.framebuffer[0], {"binary": true});
       delete device.framebuffer[0];
     } else {
-      device.ws.send(testframe);
+      device.ws.send(testframe,{"binary": true});
     }
   }
 }, 2000);
