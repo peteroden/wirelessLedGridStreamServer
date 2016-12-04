@@ -1,5 +1,4 @@
-const http = require('http')
-
+const http = require('http');
 const port = process.env.PORT || 3000;
 
 const server = http.createServer((req, res) => {
@@ -9,6 +8,31 @@ const server = http.createServer((req, res) => {
 });
 
 var devices = {};
+var testframe = new Uint8Array( [0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,
+                                 ]);
 var WebSocketServer = require('ws').Server
 var wss = new WebSocketServer({ server: server });
 
@@ -24,10 +48,10 @@ wss.on('connection', function connection(ws) {
       break;
     case "device":
       console.log("connection from device");
-      devices["deviceid"] = { "name": "name", "size": "8x8", "ws": ws};
+      devices["deviceid"] = { "name": "name", "size": "8x8", "ws": ws, "framebuffer": []};
 
       ws.on('message', function (message, flags) {
-        deviceMessage(message, flags, ws);
+        deviceMessage(message, flags, devices[deviceid]);
         console.log('received: %s', message);
         ws.send("message received");
       });
@@ -41,9 +65,9 @@ wss.on('connection', function connection(ws) {
   ws.send('connected');
 });
 
-function deviceMessage(message, flags, ws) {
-  console.log("received message: "+ message + " from " + ws.);
-  ws.send("received message"+message);
+function deviceMessage(message, flags, device) {
+  console.log("received message: "+ message);
+  devices.ws.send("received message"+message);
 }
 
 function deviceClose(deviceid) {
@@ -61,6 +85,11 @@ server.listen(port);
 var timer = setInterval(function() { 
   for (var deviceid in devices) {
     var device = devices[deviceid]
-    device.ws.send("ding");
+    if(device.framebuffer.length>0) {
+      device.ws.send(device.framebuffer[0]);
+      delete device.framebuffer[0];
+    } else {
+      device.ws.send(testframe);
+    }
   }
 }, 2000);
