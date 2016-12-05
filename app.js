@@ -44,6 +44,7 @@ wss.on('connection', function connection(ws) {
       ws.on('message', function incoming(message, flags) {
         console.log('received: %s', message);
         ws.send("message received");
+        devices['deviceid'].framebuffer.push(new Uint8Array(message));
       });
       break;
     case "device":
@@ -51,9 +52,9 @@ wss.on('connection', function connection(ws) {
       devices["deviceid"] = { "name": "name", "size": "8x8", "ws": ws, "framebuffer": []};
 
       ws.on('message', function (message, flags) {
-        deviceMessage(message, flags, devices[deviceid]);
+        deviceMessage(message, flags, devices["deviceid"]);
         console.log('received: %s', message);
-        ws.send("message received");
+        //ws.send("message received");
       });
 
       ws.on('close', function() {
@@ -67,7 +68,7 @@ wss.on('connection', function connection(ws) {
 
 function deviceMessage(message, flags, device) {
   console.log("received message: "+ message);
-  devices.ws.send("received message"+message);
+  device.ws.send("received message"+message);
 }
 
 function deviceClose(deviceid) {
@@ -86,10 +87,10 @@ var timer = setInterval(function() {
   for (var deviceid in devices) {
     var device = devices[deviceid]
     if(device.framebuffer.length>0) {
-      device.ws.send(device.framebuffer[0], {"binary": true});
-      delete device.framebuffer[0];
+      device.ws.send(device.framebuffer.shift(), {"binary": true});
+      //delete device.framebuffer[0];
     } else {
-      device.ws.send(testframe,{"binary": true});
+      //device.ws.send(testframe,{"binary": true});
     }
   }
-}, 2000);
+}, 30);
