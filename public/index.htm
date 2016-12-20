@@ -32,14 +32,16 @@
                                     0,0,0,0,0,0,0,255
                                     ]);
 
-    var ws = new WebSocket("ws://"+window.location.host, 'browser');
+    var ws = new WebSocket("ws://"+window.location.host, 'client');
 </script>
 </head>
 <body>
     <h1>hello world</h1>
 </body>
 <script>
-    ws.send(testframe, { binary: true });
+    ws.onopen = function (event) {
+        ws.send(testframe, { binary: true });
+    }
 
 </script>
 

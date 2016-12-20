@@ -68,49 +68,43 @@ var testframe = new Uint8Array( [255,0,0,0,0,0,0,0,
 var WebSocketServer = require('ws').Server
 var wss = new WebSocketServer({ server: server });
 
-wss.on('connection', function connection(ws) { 
-  switch(ws.protocol) {
-    case "browser":
-      console.log("connection from browser")
-      ws.send("ws connected from browser");
-      ws.on('message', function incoming(message, flags) {
-        //console.log('received: %s', message);
-        //ws.send("message received");
-        devices['deviceid'].framebuffer.push(new Uint8Array(message));
-      });
+wss.on('connection', function connection(ws) {
+  //the portocol major type is the first 6 characters
+  switch(ws.protocol.substring(0,6)) {
+    case "client":
+      console.log("connection from client");
+      ws.send("ws connected from client");
+      ws.on('message', function (message, flags) {clientMessage(message, flags, ws)});
       break;
     case "device":
       console.log("connection from device");
-      devices["deviceid"] = { "name": "name", "size": "8x8", "ws": ws, "framebuffer": []};
-
-      ws.on('message', function (message, flags) {
-        deviceMessage(message, flags, devices["deviceid"]);
-        console.log('received: %s', message);
-        //ws.send("message received");
-      });
-
-      ws.on('close', function() {
-        deviceClose("deviceid")
-      });
+      
+      // setup new device in device registry
+      //the deviceID is the string following the protocol major type
+      var deviceId = ws.protocol.substring(6);
+      devices[deviceId] = { "name": "name", "size": "8x8", "ws": ws, "framebuffer": []};
+      
+      ws.on('message', function(message, flags) {deviceMessage(message, flags, devices[deviceId])})
+      ws.on('close', function() {deviceClose(deviceId)});
       break;
   }
 
   ws.send('connected');
 });
 
+function clientMessage(message, flags, ws) {
+  ws.send("received message"+message);
+  devices['deviceid'].framebuffer.push(message);
+}
+
 function deviceMessage(message, flags, device) {
-  console.log("received message: "+ message);
+  console.log('received message: %s', message);
   device.ws.send("received message"+message);
 }
 
 function deviceClose(deviceid) {
   console.log("closed connection for "+deviceid);
   delete devices[deviceid];
-}
-
-
-function browserMessage(message, flags, ws) {
-  ws.send("received message"+message);
 }
 
 server.listen(port);
