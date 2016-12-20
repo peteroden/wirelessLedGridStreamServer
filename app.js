@@ -1,10 +1,42 @@
 const http = require('http');
+var fs = require('fs');
+var path = require('path');
 const port = process.env.PORT || 3000;
 
 const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello World\n');
+    var filePath = './public' + req.url;
+ 
+    if (filePath == './public/') {
+        filePath = './public/index.htm';
+    }
+    var extname = path.extname(filePath);
+    var contentType = 'text/html';
+    switch (extname) {
+        case '.js':
+            contentType = 'text/javascript';
+            break;
+        case '.css':
+            contentType = 'text/css';
+            break;
+    }
+    fs.access(filePath, fs.F_OK ,function (err) {
+        if (!err) {
+            fs.readFile(filePath, function (error, content) {
+                if (error) {
+                    res.writeHead(500);
+                    res.end();
+                }
+                else {
+                    res.writeHead(200, { 'Content-Type': contentType });
+                    res.end(content, 'utf-8');
+                }
+            });
+        }
+        else {
+            res.writeHead(404);
+            res.end();
+        }
+    });
 });
 
 var devices = {};
@@ -25,7 +57,7 @@ var testframe = new Uint8Array( [255,0,0,0,0,0,0,0,
                                  0,0,0,0,0,0,0,0,
                                  0,0,0,0,0,0,0,0,
                                  0,0,0,0,0,0,0,0,
-                                 0,0,0,0,0,0,0,0,
+                                 0,0,0,0,0,0,0,0,                        
                                  0,0,0,0,0,0,0,0,
                                  0,0,0,0,0,0,0,0,
                                  0,0,0,0,0,0,0,0,
@@ -42,8 +74,8 @@ wss.on('connection', function connection(ws) {
       console.log("connection from browser")
       ws.send("ws connected from browser");
       ws.on('message', function incoming(message, flags) {
-        console.log('received: %s', message);
-        ws.send("message received");
+        //console.log('received: %s', message);
+        //ws.send("message received");
         devices['deviceid'].framebuffer.push(new Uint8Array(message));
       });
       break;
